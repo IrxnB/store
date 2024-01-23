@@ -1,0 +1,120 @@
+definitions:
+  dto.AddToCart:
+    properties:
+      batch:
+        items:
+          $ref: '#/definitions/dto.AddToCartRequest'
+        type: array
+    type: object
+  dto.AddToCartRequest:
+    properties:
+      ammount:
+        type: integer
+      product_id:
+        type: string
+    type: object
+  dto.RemoveFromCart:
+    properties:
+      product_ids:
+        items:
+          type: string
+        type: array
+    type: object
+  model.CartEntry:
+    properties:
+      ammount:
+        type: integer
+      name:
+        type: string
+      product_id:
+        type: string
+    type: object
+  model.ProductFull:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      seller_name:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /cart/:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: product ids to remove
+        in: body
+        name: productIds
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RemoveFromCart'
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.CartEntry'
+            type: array
+        "400":
+          description: Bad Request
+      summary: Remove product from cart
+      tags:
+      - cart
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.CartEntry'
+            type: array
+        "400":
+          description: Bad Request
+      summary: Get content of a cart
+      tags:
+      - cart
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: cart entries
+        in: body
+        name: entries
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AddToCart'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      summary: Add to cart or update existing
+      tags:
+      - cart
+  /cart/products:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.ProductFull'
+            type: array
+        "400":
+          description: Bad Request
+      summary: Get products
+      tags:
+      - cart
+swagger: "2.0"

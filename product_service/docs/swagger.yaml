@@ -1,0 +1,274 @@
+basePath: /api/v1
+definitions:
+  dto.CreateProduct:
+    properties:
+      categories:
+        items:
+          type: string
+        type: array
+      description:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+    type: object
+  dto.CreateSeller:
+    properties:
+      name:
+        type: string
+    type: object
+  dto.ProductPage:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      products:
+        items:
+          $ref: '#/definitions/model.Product'
+        type: array
+    type: object
+  dto.UpdateSeller:
+    properties:
+      name:
+        type: string
+    type: object
+  model.Category:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  model.Product:
+    properties:
+      categories:
+        items:
+          $ref: '#/definitions/model.Category'
+        type: array
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      seller:
+        $ref: '#/definitions/model.Seller'
+    type: object
+  model.Seller:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  title: Product service
+  version: "1.0"
+paths:
+  /product/:
+    get:
+      parameters:
+      - description: page number
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: limit number
+        in: query
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ProductPage'
+        "400":
+          description: Bad Request
+      summary: Get product page
+      tags:
+      - product
+  /product/{id}:
+    get:
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Product'
+        "400":
+          description: Bad Request
+      summary: Get product by id
+      tags:
+      - product
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: product id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: new product
+        in: body
+        name: updateProduct
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateProduct'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      summary: Update Product
+      tags:
+      - product
+  /seller/:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Seller'
+            type: array
+        "400":
+          description: Bad Request
+      summary: Get seller list
+      tags:
+      - seller
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: new seller
+        in: body
+        name: createSeller
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateSeller'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      summary: Create seller
+      tags:
+      - seller
+  /seller/{id}:
+    get:
+      parameters:
+      - description: seller id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Seller'
+        "400":
+          description: Bad Request
+      summary: Get seller  by id
+      tags:
+      - seller
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: seller id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: new seller
+        in: body
+        name: updateSeller
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateSeller'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      summary: Update seller
+      tags:
+      - seller
+  /seller/{id}/products:
+    get:
+      parameters:
+      - description: seller id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: page number
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: limit number
+        in: query
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ProductPage'
+        "400":
+          description: Bad Request
+      summary: Get product page of a seller
+      tags:
+      - seller
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: seller id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: new product
+        in: body
+        name: createProduct
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateProduct'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      summary: Add product to seller
+      tags:
+      - seller
+swagger: "2.0"

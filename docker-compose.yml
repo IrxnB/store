@@ -1,0 +1,127 @@
+version: '3.8'
+
+services:
+
+  oauth_postgres:
+
+    image: postgres:latest
+
+    container_name: oauth_db
+
+    environment:
+      POSTGRES_DB: "oauth_db"
+      POSTGRES_USER: "user"
+      POSTGRES_PASSWORD: "password"
+      
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - oauthpgdata:/var/lib/postgresql/data
+
+  oauth_service:
+
+    build: 
+      context: ./oauth_service
+      dockerfile: ./Dockerfile
+
+    container_name: oauth_service
+
+    environment:
+      OAUTH_DB_CONNECTION_STRING: "postgres://user:password@host.docker.internal:5432/oauth_db?sslmode=disable"
+
+    ports:
+      - "5000:5000"
+
+    volumes:
+      - oauthstorage:/app/storage
+
+    depends_on:
+      - oauth_postgres
+
+  product_db:
+
+    image: postgres:latest
+
+    container_name: product_db
+
+    environment:
+      POSTGRES_DB: "product_db"
+      POSTGRES_USER: "user"
+      POSTGRES_PASSWORD: "password"
+      
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - productpgdata:/var/lib/postgresql/data
+
+  product_service:
+
+    build: 
+      context: ./product_service
+      dockerfile: ./Dockerfile
+
+    container_name: product_service
+
+    environment:
+       DB_CONNECTION_STRING: "postgres://user:password@host.docker.internal:5433/product_db?sslmode=disable"
+       JWK_SERVER_URL: "http://host.docker.internal:5000"
+
+    ports:
+      - "8080:8080"
+
+
+    depends_on:
+      - oauth_service
+      - product_db
+
+  cart_db:
+
+    image: postgres:latest
+
+    container_name: cart_db
+
+    environment:
+      POSTGRES_DB: "cart_db"
+      POSTGRES_USER: "user"
+      POSTGRES_PASSWORD: "password"
+      
+    ports:
+      - "5434:5432"
+
+    volumes:
+      - cartpgdata:/var/lib/postgresql/data
+
+  cart_service:
+
+    build: 
+      context: ./cart_service
+      dockerfile: ./Dockerfile
+
+    container_name: cart_service
+
+    environment:
+       CART_DB_CONNECTION_STRING: "postgres://user:password@host.docker.internal:5434/cart_db?sslmode=disable"
+       JWK_SERVER_URL: "http://localhost:5000"
+
+    ports:
+      - "8081:8081"
+
+
+    depends_on:
+      - oauth_service
+      - product_service
+      - cart_db
+  
+
+volumes:
+  oauthpgdata:
+  oauthstorage:
+  productpgdata:
+  cartpgdata:
+
+
+
+
+      
